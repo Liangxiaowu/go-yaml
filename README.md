@@ -79,6 +79,6 @@ func getValue() {
     if err != nil {
         fmt.Println(err)
     }
-	fmt.Println(i.(string))             # 可以转换成指定的类型
+    fmt.Println(i.(string))             # 可以转换成指定的类型
 }
 ```
