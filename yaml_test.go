@@ -31,9 +31,34 @@ type User struct {
 	List [][]int   `json:"list"`
 }
 
-func TestConfig_Get(t *testing.T) {
-	var u User
-	err := New().Get(&u)
+type Obj struct {
+	A int
+	B int
+}
+
+func TestConfig_G(t *testing.T) {
+	obj := &Obj{}
+	err := New().G(obj, "user", "obj")
 	fmt.Println(err)
-	fmt.Println(u)
+	fmt.Println(obj)
+}
+
+func TestConfig_G2(t *testing.T) {
+	user := &User{}
+	err := New().G(user)
+	fmt.Println(err)
+	fmt.Println(user)
+}
+
+//func TestConfig_G3(t *testing.T) {
+//	var name string
+//	err := New().G(name, "user", "name")
+//	fmt.Println(err)
+//	fmt.Println(name)
+//}
+
+func TestConfig_Value(t *testing.T) {
+	i, err := New().Value("user", "name")
+	fmt.Println(i.(string))
+	fmt.Println(err)
 }

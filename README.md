@@ -27,16 +27,20 @@ yaml := New(Name("xxx.yaml"))
 ## 自定义yaml文件地址,读取./conf/app.yaml文件
 yaml := New(Dir("./conf"))
 ```
-#### 结构体列子
+#### 获取结构体实例
 app.yaml:
 ```yaml
 user:
   name: wunder
   age: 18
+  obj:
+    a: 1
+    b: b
 
 ```
 main.go
 ```go
+## 默认是查询第一层的键作为数据体
 type User struct {
     Name string
     Age  int `json:"age"`
@@ -44,7 +48,21 @@ type User struct {
 
 func getUser()  {
     var u User           # 映射结构体
-    err := New().Get(&u) # 按照顶级查询出一个结构体
+    err := New().G(&u)   # 查找一个user结构体
+    fmt.Println(err)
+    fmt.Println(u)
+}
+
+
+## 查询其它的键的数据体
+type Obj struct {
+    A int
+    B string `json:"a"`
+}
+
+func getUser()  {
+    var o Obj                    
+    err := New().G(&o, "user")   # 指定属于哪一个上层键
     fmt.Println(err)
     fmt.Println(u)
 }

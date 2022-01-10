@@ -8,53 +8,101 @@ import (
 )
 
 type decode struct {
+	t reflect.Type
+	v reflect.Value
 }
 
 // unmarshal decodes the document found within the in byte slice
-func (d *decode) unmarshal(dest interface{}, cp interface{}) error {
+func (d *decode) unmarshal(dest interface{}, cp map[string]interface{}, params ...string) error {
+	d.t = reflect.TypeOf(dest).Elem()
 
-	c := cp.(map[string]interface{})
+	d.v = reflect.ValueOf(dest).Elem()
 
-	v := reflect.TypeOf(dest).Elem()
-
-	body, ok := c[strings.ToLower(v.Name())]
-	if !ok {
-		return errors.Errorf("No related parameters found:%s ", strings.ToLower(v.Name()))
+	if params == nil {
+		c, ok := cp[strings.ToLower(d.t.Name())]
+		if !ok {
+			return errors.Errorf("No related parameters found:%s ", strings.ToLower(d.t.Name()))
+		}
+		return d.sUnmarshal(c.(map[string]interface{}))
 	}
 
-	s := reflect.ValueOf(dest).Elem()
-
-	b := body.(map[string]interface{})
-
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		name := field.Tag.Get("json")
-		if name == "" {
-			name = strings.ToLower(field.Name)
+	var (
+		c  interface{}
+		ok bool
+	)
+	for _, param := range params {
+		c, ok = cp[param]
+		if !ok {
+			return errors.Errorf("No related parameters found:%s ", param)
 		}
+		if reflect.TypeOf(c).Kind() == reflect.Map {
+			cp = c.(map[string]interface{})
+		}
+	}
+	if reflect.ValueOf(c).Type() == d.t {
+		d.v.Set(reflect.ValueOf(c))
+		return nil
+	}
+
+	k := d.v.Type().Kind()
+	switch k {
+	case reflect.Interface:
+		d.v.Set(reflect.ValueOf(c))
+	case reflect.Struct:
+		return d.sUnmarshal(cp)
+	case reflect.Slice:
+		d.deslice(d.v, c.([]interface{}))
+		return nil
+	case reflect.Map:
+		d.demap(d.v, c.(map[string]interface{}))
+		return nil
+	}
+
+	return nil
+}
+
+func (d *decode) sUnmarshal(cp map[string]interface{}) error {
+	if d.t.Kind() != reflect.Struct {
+		return errors.Errorf("No related structures found:%s ", strings.ToLower(d.t.Name()))
+	}
+
+	b := cp
+	for i := 0; i < d.t.NumField(); i++ {
+		field := d.t.Field(i)
+
+		name := d.getTagName(field)
 
 		if val, ok := b[name]; ok {
-			k := s.Field(i).Type().Kind()
-
+			f := d.v.Field(i)
 			if reflect.ValueOf(val).Type() == field.Type {
-				s.Field(i).Set(reflect.ValueOf(val))
+				d.v.Field(i).Set(reflect.ValueOf(val))
 				continue
 			}
 
+			k := f.Type().Kind()
+
 			switch k {
 			case reflect.Struct:
-				d.destruct(s.Field(i), val)
+				d.destruct(f, val)
 				continue
 			case reflect.Slice:
-				d.deslice(s.Field(i), val.([]interface{}))
+				d.deslice(f, val.([]interface{}))
 				continue
 			case reflect.Map:
-				d.demap(s.Field(i), val.(map[string]interface{}))
+				d.demap(f, val.(map[string]interface{}))
 				continue
 			}
 		}
 	}
 	return nil
+}
+
+func (d *decode) getTagName(value reflect.StructField) string {
+	name := value.Tag.Get("json")
+	if value.Tag.Get("json") == "" {
+		name = strings.ToLower(value.Name)
+	}
+	return name
 }
 
 // destruct struct custom type conversion
@@ -63,10 +111,7 @@ func (d *decode) destruct(value reflect.Value, mp interface{}) {
 	structField := value.Type()
 	for i := 0; i < structField.NumField(); i++ {
 		v := value.Field(i)
-		name := structField.Field(i).Tag.Get("json")
-		if structField.Field(i).Tag.Get("json") == "" {
-			name = strings.ToLower(structField.Field(i).Name)
-		}
+		name := d.getTagName(structField.Field(i))
 		if val, ok := m[name]; ok {
 			// 判断是否还是结构体
 			if v.Type().Kind() == reflect.Struct {
@@ -80,7 +125,6 @@ func (d *decode) destruct(value reflect.Value, mp interface{}) {
 
 // deslice slice custom type conversion
 func (d *decode) deslice(value reflect.Value, li []interface{}) {
-	fmt.Println(value.Type().Elem().String())
 	switch value.Type().String() {
 	case "[]int":
 		var list []int

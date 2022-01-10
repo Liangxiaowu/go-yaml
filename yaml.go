@@ -16,14 +16,16 @@ var (
 
 type Yml interface {
 	load() *config
-	Get(dest interface{}) error
-	String(param ...string) error
+	G(dest interface{}, param ...string) error
+	Value(param ...string) (interface{}, error)
 }
 
 type config struct {
 	dir     string
 	name    string
 	content []byte
+	cp      map[string]interface{}
+	d       *decode
 }
 
 type Options struct {
@@ -33,7 +35,9 @@ type Options struct {
 // New returns a structure pointer of YML
 func New(options ...Options) Yml {
 	once.Do(func() {
-		c := &config{}
+		c := &config{
+			d: &decode{},
+		}
 		if options != nil {
 			for _, option := range options {
 				option.f(c)
@@ -87,31 +91,42 @@ func (c *config) load() *config {
 
 	content, err := ioutil.ReadFile(c.dir + c.name)
 	if err != nil {
-		log.Fatalf("解析config.yaml读取错误: %v", err)
+		log.Fatalf("解析%s读取错误: %v", c.name, err)
 	}
 	c.content = content
-	return c
-}
-
-// Get query a structure according to the top level
-// For example:
-//		var u User
-// 		c.Get(&u)
-func (c *config) Get(dest interface{}) error {
 
 	cp := make(map[string]interface{})
 	if err := yaml.Unmarshal(c.content, &cp); err != nil {
-		return errors.Wrap(err, "yaml get filed")
+		log.Fatalf("解析%s读取错误: %v", c.name, err)
 	}
-
-	d := &decode{}
-	if err := d.unmarshal(dest, cp); err != nil {
-		return errors.Wrap(err, "yaml get filed")
-	}
-	return nil
+	c.cp = cp
+	return c
 }
 
-// String gets the value of the specified field
-func (c *config) String(param ...string) error {
-	return nil
+//// Get query a structure according to the top level
+//// For example:
+////		var u User
+//// 		c.Get(&u)
+//func (c *config) Get(dest interface{}) error {
+//	if err := c.d.unmarshal(dest, c.cp); err != nil {
+//		return errors.Wrap(err, "yaml get filed")
+//	}
+//	return nil
+//}
+
+// G query related structure data
+// For example:
+//		var u User
+// 		c.Get(&u)
+func (c *config) G(dest interface{}, param ...string) error {
+	return c.d.unmarshal(dest, c.cp, param...)
+}
+
+// Value gets the value of the specified field
+func (c *config) Value(param ...string) (interface{}, error) {
+	var val interface{}
+	if err := c.d.unmarshal(&val, c.cp, param...); err != nil {
+		return nil, errors.Wrap(err, "string filed")
+	}
+	return val, nil
 }
