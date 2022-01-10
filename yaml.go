@@ -1,6 +1,7 @@
 package yaml
 
 import (
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -12,7 +13,7 @@ var (
 	once sync.Once
 )
 
-type YamlInter interface {
+type Yml interface {
 	load() *config
 	Get(dest interface{}) error
 	String(param ...string) error
@@ -24,16 +25,19 @@ type config struct {
 	content  []byte
 }
 
-func New() YamlInter {
+// New returns a structure pointer of YML
+func New() Yml {
 	once.Do(func() {
 		cfg = new(config).load()
 	})
 	return cfg
 }
 
+// load read file information
+// The file under conf will be read by default
 func (c *config) load() *config {
 	if c.path == "" {
-		c.path = "./conf/test.yaml"
+		c.path = "./conf/application.yaml"
 	}
 	content, err := ioutil.ReadFile(c.path)
 	if err != nil {
@@ -43,17 +47,25 @@ func (c *config) load() *config {
 	return c
 }
 
+// Get get the top parameter structure information according to the name
+// For example:
+//		var u User
+// 		c.Get(&u)
 func (c *config) Get(dest interface{}) error {
+
 	cp := make(map[string]interface{})
 	if err := yaml.Unmarshal(c.content, &cp); err != nil {
-
+		return errors.Wrap(err, "yaml get filed")
 	}
 
 	d := &decode{}
-	d.unmarshal(dest, cp)
+	if err := d.unmarshal(dest, cp); err != nil {
+		return errors.Wrap(err, "yaml get filed")
+	}
 	return nil
 }
 
+// String gets the value of the specified field
 func (c *config) String(param ...string) error {
 	return nil
 }

@@ -1,0 +1,19 @@
+user:
+  name: 小五
+  age: 18
+  in:
+    a: "A"
+    b:
+      c: "C"
+      d: "D"
+  obj: {a: 1, b: 2}
+  li:
+    - 1
+    - 2
+    - c
+  mp:
+    a: 1
+    b: b
+  b: true
+  date: 2022-01-10
+  list: [ [1,2,3], [4,5] ]

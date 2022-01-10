@@ -3,9 +3,10 @@ package yaml
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
-func bil() YamlInter {
+func bil() Yml {
 	return New()
 }
 
@@ -14,9 +15,20 @@ type User struct {
 	Age  int `json:"age"`
 	In   struct {
 		A string `json:"a"`
-		B string `json:"b"`
+		B struct {
+			C string `json:"c"`
+			D string
+		}
 	}
-	Li []int `json:"li"`
+	Li  []int          `json:"li"`
+	Mp  map[string]int `json:"mp"`
+	B   bool           `json:"b"`
+	Obj struct {
+		A int
+		B int
+	}
+	Date time.Time `json:"date"`
+	List [][]int   `json:"list"`
 }
 
 func TestConfig_Get(t *testing.T) {

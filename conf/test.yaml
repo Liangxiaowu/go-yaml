@@ -1,9 +1,0 @@
-user:
-  name: 小五
-  age: 18
-  in:
-    a: "o"
-    b: "k"
-  li:
-    - 1
-    - 2
