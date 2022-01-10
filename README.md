@@ -13,18 +13,21 @@ go get github.com/Liangxiaowu/go-yaml
 #### yaml文件
 默认情况下会读取当前项目目录下的`./configs/app.yaml`文件
 
-#### 使用自定义文件路径
+#### 初始化
 ```go
+## 默认读取./configs/app.yaml文件
+yaml := New()
+
 ## 自定义yaml文件路径
 yaml := New(FilePath("./conf/app.yaml"))
 
-## 自定义yaml文件,会读取./configs下的xxx.yaml文件
+## 自定义yaml文件,读取./configs/xxx.yaml文件
 yaml := New(Name("xxx.yaml"))
 
-## 自定义yaml文件地址,会读取./conf下的app.yaml文件
+## 自定义yaml文件地址,读取./conf/app.yaml文件
 yaml := New(Dir("./conf"))
 ```
-#### 结构体数据列子
+#### 结构体列子
 app.yaml:
 ```yaml
 user:
