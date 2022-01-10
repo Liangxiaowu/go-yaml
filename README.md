@@ -16,16 +16,16 @@ go get github.com/Liangxiaowu/go-yaml
 #### 初始化
 ```go
 ## 默认读取./configs/app.yaml文件
-yaml := New()
+yml := New()
 
 ## 自定义yaml文件路径
-yaml := New(FilePath("./conf/app.yaml"))
+yml := New(FilePath("./conf/app.yaml"))
 
 ## 自定义yaml文件,读取./configs/xxx.yaml文件
-yaml := New(Name("xxx.yaml"))
+yml := New(Name("xxx.yaml"))
 
 ## 自定义yaml文件地址,读取./conf/app.yaml文件
-yaml := New(Dir("./conf"))
+yml := New(Dir("./conf"))
 ```
 #### 获取结构体实例
 app.yaml:
@@ -48,8 +48,10 @@ type User struct {
 
 func getUser()  {
     var u User           # 映射结构体
-    err := New().G(&u)   # 查找一个user结构体
-    fmt.Println(err)
+    err := yml.G(&u)   # 查找一个user结构体
+    if err != nil {
+        fmt.Println(err)
+    }
     fmt.Println(u)
 }
 
@@ -62,13 +64,21 @@ type Obj struct {
 
 func getUser()  {
     var o Obj                    
-    err := New().G(&o, "user")   # 指定属于哪一个上层键
-    fmt.Println(err)
+    err := yml.G(&o, "user")   # 指定属于哪一个上层键
+    if err != nil {
+        fmt.Println(err)
+    }
     fmt.Println(u)
 }
 ```
 
 #### 获取指定参数值
 ```go
-....
+func getValue() {
+    i, err := yml.Value("user", "name") # 获取user->name的值，返回是一个interface{}类型
+    if err != nil {
+        fmt.Println(err)
+    }
+	fmt.Println(i.(string))             # 可以转换成指定的类型
+}
 ```
