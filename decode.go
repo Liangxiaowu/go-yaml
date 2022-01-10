@@ -8,7 +8,6 @@ import (
 )
 
 type decode struct {
-	errs []error
 }
 
 // unmarshal decodes the document found within the in byte slice
@@ -36,7 +35,7 @@ func (d *decode) unmarshal(dest interface{}, cp interface{}) error {
 
 		if val, ok := b[name]; ok {
 			k := s.Field(i).Type().Kind()
-			//
+
 			if reflect.ValueOf(val).Type() == field.Type {
 				s.Field(i).Set(reflect.ValueOf(val))
 				continue

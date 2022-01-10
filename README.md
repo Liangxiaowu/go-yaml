@@ -2,7 +2,7 @@
 Yaml parsing Toolkit
 
 #### 介绍
-[gopkg.in/yaml.v3](https://pkg.go.dev/gopkg.in/yaml.v3#section-readme) 已经是个非常好用的包，但是在实际开发总有类型转换比较麻烦，`go-yaml`只是在它的基础上，简单的一层封装，作为某些类型的定义转换。
+[gopkg.in/yaml.v3](https://pkg.go.dev/gopkg.in/yaml.v3#section-readme) 已经是个非常好用的包，但是在实际开发中总有类型转换带来的麻烦，`go-yaml`只是在它的基础上，简单的一层封装，作为某些类型的定义转换。
 
 #### go module
 ```
