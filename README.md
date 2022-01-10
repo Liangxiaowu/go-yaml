@@ -11,19 +11,43 @@ go get github.com/Liangxiaowu/go-yaml
 
 
 #### yaml文件
-默认情况下会读取当前项目目录下的`conf/application.yaml`文件
+默认情况下会读取当前项目目录下的`./configs/app.yaml`文件
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+#### 使用自定义文件路径
+```go
+## 自定义yaml文件路径
+yaml := New(FilePath("./conf/app.yaml"))
 
+## 自定义yaml文件,会读取./configs下的xxx.yaml文件
+yaml := New(Name("xxx.yaml"))
 
-#### 特技
+## 自定义yaml文件地址,会读取./conf下的app.yaml文件
+yaml := New(Dir("./conf"))
+```
+#### 结构体数据列子
+app.yaml:
+```yaml
+user:
+  name: wunder
+  age: 18
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+```
+main.go
+```go
+type User struct {
+    Name string
+    Age  int `json:"age"`
+}
+
+func getUser()  {
+    var u User           # 映射结构体
+    err := New().Get(&u) # 按照顶级查询出一个结构体
+    fmt.Println(err)
+    fmt.Println(u)
+}
+```
+
+#### 获取指定参数值
+```go
+....
+```

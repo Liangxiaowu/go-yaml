@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func bil() Yml {
-	return New()
+func TestFilePath(t *testing.T) {
+	New(FilePath("./conf/app.yaml"))
 }
 
 type User struct {
@@ -33,7 +33,7 @@ type User struct {
 
 func TestConfig_Get(t *testing.T) {
 	var u User
-	err := bil().Get(&u)
+	err := New().Get(&u)
 	fmt.Println(err)
 	fmt.Println(u)
 }

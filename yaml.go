@@ -5,6 +5,7 @@ import (
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
+	"strings"
 	"sync"
 )
 
@@ -20,26 +21,71 @@ type Yml interface {
 }
 
 type config struct {
-	path     string
-	fileName string
-	content  []byte
+	dir     string
+	name    string
+	content []byte
+}
+
+type Options struct {
+	f func(*config)
 }
 
 // New returns a structure pointer of YML
-func New() Yml {
+func New(options ...Options) Yml {
 	once.Do(func() {
-		cfg = new(config).load()
+		c := &config{}
+		if options != nil {
+			for _, option := range options {
+				option.f(c)
+			}
+		}
+		cfg = c.load()
 	})
 	return cfg
+}
+
+func Dir(path string) Options {
+	return Options{func(do *config) {
+		do.dir = path
+	}}
+}
+
+func Name(file string) Options {
+	return Options{func(do *config) {
+		do.name = file
+	}}
+}
+
+func FilePath(file string) Options {
+	return Options{func(do *config) {
+
+		last := strings.LastIndex(file, "/")
+
+		path := file[0 : last+1]
+		name := file[last+1:]
+
+		do.dir = path
+		do.name = name
+	}}
 }
 
 // load read file information
 // The file under conf will be read by default
 func (c *config) load() *config {
-	if c.path == "" {
-		c.path = "./conf/application.yaml"
+
+	if c.dir == "" {
+		c.dir = "./configs/"
 	}
-	content, err := ioutil.ReadFile(c.path)
+
+	if c.dir[len(c.dir)-1:] != "/" {
+		c.dir = c.dir + "/"
+	}
+
+	if c.name == "" {
+		c.name = "app.yaml"
+	}
+
+	content, err := ioutil.ReadFile(c.dir + c.name)
 	if err != nil {
 		log.Fatalf("解析config.yaml读取错误: %v", err)
 	}
@@ -47,7 +93,7 @@ func (c *config) load() *config {
 	return c
 }
 
-// Get get the top parameter structure information according to the name
+// Get query a structure according to the top level
 // For example:
 //		var u User
 // 		c.Get(&u)
