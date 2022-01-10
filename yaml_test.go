@@ -50,12 +50,13 @@ func TestConfig_G2(t *testing.T) {
 	fmt.Println(user)
 }
 
-//func TestConfig_G3(t *testing.T) {
-//	var name string
-//	err := New().G(name, "user", "name")
-//	fmt.Println(err)
-//	fmt.Println(name)
-//}
+func TestConfig_G3(t *testing.T) {
+	var name string
+	err := New().G(&name, "user", "name")
+	fmt.Println(name)
+	fmt.Println(err)
+
+}
 
 func TestConfig_Value(t *testing.T) {
 	i, err := New().Value("user", "name")

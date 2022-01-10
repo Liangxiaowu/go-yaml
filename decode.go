@@ -97,6 +97,36 @@ func (d *decode) sUnmarshal(cp map[string]interface{}) error {
 	return nil
 }
 
+func (d *decode) uu(dest interface{}, cp map[string]interface{}, params ...string) error {
+	//t := reflect.TypeOf(dest)
+	v := reflect.ValueOf(dest).Elem()
+
+	var (
+		c  interface{}
+		ok bool
+	)
+	for _, param := range params {
+		c, ok = cp[param]
+		if !ok {
+			return errors.Errorf("No related parameters found:%s ", param)
+		}
+		if reflect.TypeOf(c).Kind() == reflect.Map {
+			cp = c.(map[string]interface{})
+		}
+	}
+	//fmt.Println(reflect.ValueOf(c).Type())
+	//fmt.Println(d.v.Type())
+	//d.v.Set(reflect.ValueOf(c))
+	if reflect.ValueOf(c).Type() == v.Type() {
+		//fmt.Println(c)
+		//fmt.Println(1111111)
+		v.Set(reflect.ValueOf(c))
+		return nil
+	}
+
+	return nil
+}
+
 func (d *decode) getTagName(value reflect.StructField) string {
 	name := value.Tag.Get("json")
 	if value.Tag.Get("json") == "" {

@@ -74,6 +74,18 @@ func getUser()  {
 
 #### 获取指定参数值
 ```go
+# G函数实现
+func getName(){
+    var name string
+    err := New().G(&name, "user", "name")
+    if err != nil {
+        fmt.Println(err)
+    }
+    fmt.Println(name)
+}
+
+
+# Value函数
 func getValue() {
     i, err := yml.Value("user", "name") # 获取user->name的值，返回是一个interface{}类型
     if err != nil {
