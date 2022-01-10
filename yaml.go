@@ -103,17 +103,6 @@ func (c *config) load() *config {
 	return c
 }
 
-//// Get query a structure according to the top level
-//// For example:
-////		var u User
-//// 		c.Get(&u)
-//func (c *config) Get(dest interface{}) error {
-//	if err := c.d.unmarshal(dest, c.cp); err != nil {
-//		return errors.Wrap(err, "yaml get filed")
-//	}
-//	return nil
-//}
-
 // G query related structure data
 // For example:
 //		var u User
